@@ -1,5 +1,6 @@
 import {TokenService} from '@loopback/authentication';
 import {BindingKey} from '@loopback/core';
+import {PostgresCasbinAdapter} from '../components/casbin';
 import {PasswordHasher} from '../services';
 
 export class ApplicationKeys {
@@ -31,6 +32,12 @@ export namespace TokenServiceBindings {
   );
   export const TOKEN_SERVICE = BindingKey.create<TokenService>(
     'services.authentication.jwt.tokenservice',
+  );
+}
+
+export namespace PostgresAdapterBindings {
+  export const POSTGRES_ADAPTER = BindingKey.create<PostgresCasbinAdapter>(
+    'casbin.postgres.adapter',
   );
 }
 

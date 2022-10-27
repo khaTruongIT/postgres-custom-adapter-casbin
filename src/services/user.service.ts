@@ -26,6 +26,7 @@ import {
   UserRepository,
 } from '../repositories';
 import {RoleMappingPermissionRepository} from '../repositories/role-mapping-permission.repository';
+import {getLogger} from '../utils';
 
 export type UserCredentials = {
   username: string;
@@ -37,6 +38,8 @@ export type Permission = {
   object: string;
   action: string;
 };
+
+const logger = getLogger('user.service');
 
 export class UserService {
   constructor(
@@ -81,7 +84,7 @@ export class UserService {
       },
       fields: ['id', 'roleId', 'userId'],
     });
-    console.log(`roleMappingUser: ${JSON.stringify(roleMappingUser)}`);
+    logger.log(`roleMappingUser: ${JSON.stringify(roleMappingUser)}`);
 
     // get role of user
     const roleOfUser = await this.roleRepository.find({
@@ -89,7 +92,7 @@ export class UserService {
         id: _.get(roleMappingUser, '0.roleId'),
       },
     });
-    console.log(`roleOfUser: ${JSON.stringify(roleOfUser)}`);
+    logger.log(`roleOfUser: ${JSON.stringify(roleOfUser)}`);
 
     const permissionOfRoles = await this.roleMappingPermissionRepository.find({
       where: {
@@ -111,12 +114,10 @@ export class UserService {
 
     let userProfile: UserProfile;
     userProfile = Object.assign({
-      user: {
-        id,
-        fullName,
-        email,
-        userName,
-      },
+      id,
+      fullName,
+      email,
+      userName,
       roles: roleOfUser[0],
       permissions,
     });
@@ -124,7 +125,7 @@ export class UserService {
   }
 
   async createUser(userRequest: User) {
-    console.log(`userRequest ==> ${JSON.stringify(userRequest)}`);
+    logger.log(`userRequest ==> ${JSON.stringify(userRequest)}`);
 
     const encryptPassword = await this.hasher.hashPassword(
       userRequest.password,

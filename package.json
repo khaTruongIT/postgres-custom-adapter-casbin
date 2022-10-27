@@ -57,6 +57,7 @@
     "@loopback/rest-explorer": "^5.0.2",
     "@loopback/service-proxy": "^5.0.2",
     "lodash": "^4.17.21",
+    "log4js": "^6.7.0",
     "loopback-connector-postgresql": "^5.5.2",
     "papaparse": "^5.3.2",
     "tslib": "^2.0.0"

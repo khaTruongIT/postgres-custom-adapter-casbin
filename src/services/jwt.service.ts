@@ -1,11 +1,13 @@
-import {Authentication} from '../constants';
 import {TokenService} from '@loopback/authentication';
 import {repository} from '@loopback/repository';
 import {HttpErrors} from '@loopback/rest';
 import {securityId, UserProfile} from '@loopback/security';
 import {JwtPayload, sign, verify} from 'jsonwebtoken';
+import {Authentication} from '../constants';
 import {AccessTokenRepository, UserRepository} from '../repositories';
+import {getLogger} from '../utils';
 
+const logger = getLogger('jwt.service');
 export class JWTService implements TokenService {
   constructor(
     @repository(AccessTokenRepository)
@@ -26,10 +28,14 @@ export class JWTService implements TokenService {
       ) as JwtPayload;
 
       userProfile = {
-        [securityId]: decodedToken.user.id,
-        user: decodedToken.user,
-        company: decodedToken.company,
-        roles: decodedToken.roles
+        [securityId]: decodedToken.id,
+        user: {
+          fullName: decodedToken.fullName,
+          email: decodedToken.email,
+          userName: decodedToken.userName,
+        },
+        roles: decodedToken.roles,
+        permissions: decodedToken.permissions,
       };
     } catch (error) {
       throw new HttpErrors.Unauthorized(
@@ -50,13 +56,13 @@ export class JWTService implements TokenService {
         expiresIn: Number(Authentication.APPLICATION_ACCESS_TOKEN_EXPIRES_IN),
       });
       const accessTokenUser = await this.accessTokenRepository.create({
-        userId: userProfile.user.id,
+        userId: userProfile.id,
         data: JSON.stringify(userProfile),
         ttl: Authentication.DEFAULT_TTL,
         id: token,
       });
     } catch (error) {
-      console.info('error =>', error);
+      logger.error('error =>', error);
       throw new HttpErrors.Unauthorized(error);
     }
     return token;

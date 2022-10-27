@@ -12,11 +12,16 @@ import {
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {CasbinAuthorizationComponent} from './components';
-import {createEnforcerFromDb} from './components/casbin';
-import {PasswordHasherBindings, TokenServiceBindings} from './constants';
+import {PostgresCasbinAdapter} from './components/casbin';
+import {
+  PasswordHasherBindings,
+  PostgresAdapterBindings,
+  TokenServiceBindings,
+} from './constants';
 import {DbDataSource} from './datasources';
 import {MySequence} from './sequence';
 import {BcryptHasher, JWTService} from './services';
+import {configure} from './utils';
 export {ApplicationConfig};
 
 export class AuthorizeAppApplication extends BootMixin(
@@ -48,8 +53,9 @@ export class AuthorizeAppApplication extends BootMixin(
     this.bind(TokenServiceBindings.TOKEN_SERVICE).toClass(JWTService);
     this.bind(PasswordHasherBindings.PASSWORD_HASHER).toClass(BcryptHasher);
     this.bind(PasswordHasherBindings.ROUNDS).to(10);
-
-    
+    this.bind(PostgresAdapterBindings.POSTGRES_ADAPTER).toClass(
+      PostgresCasbinAdapter,
+    );
 
     this.projectRoot = __dirname;
     // Customize @loopback/boot Booter Conventions here
@@ -61,5 +67,6 @@ export class AuthorizeAppApplication extends BootMixin(
         nested: true,
       },
     };
+    configure();
   }
 }

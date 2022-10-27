@@ -4,8 +4,6 @@ import {
   PermissionRepository,
   RoleMappingPermissionRepository,
 } from '../../repositories';
-// import {AuthorizeAppApplication} from '../../application';
-
 export class PostgresCasbinAdapter implements Adapter {
   constructor(
     @repository(PermissionRepository)
@@ -29,9 +27,8 @@ export class PostgresCasbinAdapter implements Adapter {
     const policy = await this.loadPermissions();
     if (policy) {
       const rules = policy.split('\n');
-      console.log('rules =>', rules);
       rules.forEach((n: string, index: number) => {
-        if (!n) { 
+        if (!n) {
           return;
         }
         handler(n, model);
@@ -45,7 +42,6 @@ export class PostgresCasbinAdapter implements Adapter {
     for (const permission of permissionsOfRole) {
       const lineOfRule = `${permission.subject}, ${permission.object}, ${permission.action}`;
       const newString = 'p'.concat(',').concat(lineOfRule).concat('\n');
-      console.log('newString ===>', newString);
       string = string + newString;
     }
     return string;
