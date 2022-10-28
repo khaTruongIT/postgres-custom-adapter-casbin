@@ -15,6 +15,3 @@ export function formatPolicyLine(policy: Policy[]): string {
   });
   return string;
 }
-
-
-

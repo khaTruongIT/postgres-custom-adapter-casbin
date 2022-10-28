@@ -11,11 +11,11 @@ import path from 'path';
 import {PostgresAdapterBindings, RESOURCE_ID} from '../../constants/keys';
 import {getLogger} from '../../utils';
 import {PostgresCasbinAdapter} from './postgres-casbin-adapter';
-// import {AuthorizeAppApplication} from '../../application';
-// const debug = require('debug')('loopback:example:acl');
+
 const DEFAULT_SCOPE = 'execute';
 const conf = path.resolve(__dirname, './../../../casbin-config/casbin.conf');
 const logger = getLogger('casbin.authorizer');
+
 export class CasbinAuthorizationProvider implements Provider<Authorizer> {
   constructor(
     @inject(PostgresAdapterBindings.POSTGRES_ADAPTER)

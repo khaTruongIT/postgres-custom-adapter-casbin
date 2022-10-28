@@ -4,6 +4,9 @@ import {
   PermissionRepository,
   RoleMappingPermissionRepository,
 } from '../../repositories';
+import {getLogger} from '../../utils';
+
+const logger = getLogger('postgres-casbin-adapter');
 export class PostgresCasbinAdapter implements Adapter {
   constructor(
     @repository(PermissionRepository)
@@ -25,6 +28,7 @@ export class PostgresCasbinAdapter implements Adapter {
     handler: (line: string, model: Model) => void,
   ): Promise<void> {
     const policy = await this.loadPermissions();
+    logger.info(`policy: ${policy}`);
     if (policy) {
       const rules = policy.split('\n');
       rules.forEach((n: string, index: number) => {

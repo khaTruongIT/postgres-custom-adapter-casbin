@@ -2,7 +2,7 @@ import {AuthenticationComponent} from '@loopback/authentication';
 import {JWTAuthenticationComponent} from '@loopback/authentication-jwt';
 import {AuthorizationComponent} from '@loopback/authorization';
 import {BootMixin} from '@loopback/boot';
-import {ApplicationConfig} from '@loopback/core';
+import {ApplicationConfig, BindingScope} from '@loopback/core';
 import {RepositoryMixin} from '@loopback/repository';
 import {RestApplication} from '@loopback/rest';
 import {
@@ -14,11 +14,13 @@ import path from 'path';
 import {CasbinAuthorizationComponent} from './components';
 import {PostgresCasbinAdapter} from './components/casbin';
 import {
+  BullmqEventBusBindings,
   PasswordHasherBindings,
   PostgresAdapterBindings,
   TokenServiceBindings,
 } from './constants';
 import {DbDataSource} from './datasources';
+import BullmqEventBus from './event-bus/bullmq-event-bus';
 import {MySequence} from './sequence';
 import {BcryptHasher, JWTService} from './services';
 import {configure} from './utils';
@@ -56,6 +58,9 @@ export class AuthorizeAppApplication extends BootMixin(
     this.bind(PostgresAdapterBindings.POSTGRES_ADAPTER).toClass(
       PostgresCasbinAdapter,
     );
+    this.bind(BullmqEventBusBindings.BULLMQ_EVENT_BUS)
+      .toClass(BullmqEventBus)
+      .inScope(BindingScope.SINGLETON);
 
     this.projectRoot = __dirname;
     // Customize @loopback/boot Booter Conventions here
