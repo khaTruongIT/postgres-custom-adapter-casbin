@@ -5,7 +5,6 @@ import {CasbinModelEvent} from './casbin-model-event';
 export interface ICasbinEventBus {
   enqueue(event: CasbinModelEvent): void;
   dequeue(): void;
-  // peek(): SimpleviewModelEvent;
 }
 
 export class CasbinEventBus implements ICasbinEventBus {

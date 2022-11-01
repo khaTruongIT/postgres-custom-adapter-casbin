@@ -19,10 +19,10 @@ import {
   PostgresAdapterBindings,
   TokenServiceBindings,
 } from './constants';
-import {DbDataSource} from './datasources';
+import {DbDataSource, RedisDatasource} from './datasources';
 import BullmqEventBus from './event-bus/bullmq-event-bus';
 import {MySequence} from './sequence';
-import {BcryptHasher, JWTService} from './services';
+import {BcryptHasher, JWTService, RedisService} from './services';
 import {configure} from './utils';
 export {ApplicationConfig};
 
@@ -34,6 +34,7 @@ export class AuthorizeAppApplication extends BootMixin(
 
     //set up datasource
     this.dataSource(DbDataSource);
+    this.dataSource(RedisDatasource);
 
     // Set up the custom sequence
     this.sequence(MySequence);
@@ -61,6 +62,8 @@ export class AuthorizeAppApplication extends BootMixin(
     this.bind(BullmqEventBusBindings.BULLMQ_EVENT_BUS)
       .toClass(BullmqEventBus)
       .inScope(BindingScope.SINGLETON);
+    //bind custom service
+    this.service(RedisService);
 
     this.projectRoot = __dirname;
     // Customize @loopback/boot Booter Conventions here

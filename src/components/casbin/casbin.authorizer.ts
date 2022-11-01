@@ -30,13 +30,13 @@ export class CasbinAuthorizationProvider implements Provider<Authorizer> {
     authorizationCtx: AuthorizationContext,
     metadata: AuthorizationMetadata,
   ): Promise<AuthorizationDecision> {
-    logger.log(
+    logger.info(
       'authorizationCtx.principals ==>',
       JSON.stringify(authorizationCtx.principals),
     );
     const subject = authorizationCtx.principals[0].roles.role;
 
-    logger.log('authorizationCtx ==>', JSON.stringify(authorizationCtx));
+    logger.info('authorizationCtx ==>', JSON.stringify(authorizationCtx));
 
     const resourceId = await authorizationCtx.invocationContext.get(
       RESOURCE_ID,
@@ -50,7 +50,7 @@ export class CasbinAuthorizationProvider implements Provider<Authorizer> {
       object,
       action: metadata.scopes?.[0] ?? DEFAULT_SCOPE,
     };
-    logger.log('request ==>', request);
+    logger.info('request ==>', request);
 
     const allowedRoles = metadata.allowedRoles;
 

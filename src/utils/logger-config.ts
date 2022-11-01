@@ -15,7 +15,7 @@ interface LoggerConfig {
 
 export function configure(
   config: LoggerConfig = {
-    filename: `${process.env.LOG4JS_DIR}/${process.env.LOG4JS_FILENAME}`,
+    filename: `../../log`,
     maxLogSize: Number(process.env.LOG4JS_MAX_LOG_SIZE) || 10485760,
     backups: Number(process.env.LOG4JS_BACKUPS) || 99,
     keepFileExt: true,

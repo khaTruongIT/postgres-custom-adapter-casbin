@@ -1,5 +1,6 @@
 import {TokenService} from '@loopback/authentication';
 import {BindingKey} from '@loopback/core';
+import {Queue} from 'bullmq';
 import {PostgresCasbinAdapter} from '../components/casbin';
 import BullmqEventBus from '../event-bus/bullmq-event-bus';
 import {PasswordHasher} from '../services';
@@ -53,4 +54,8 @@ export type Policy = {
 export namespace BullmqEventBusBindings {
   export const BULLMQ_EVENT_BUS =
     BindingKey.create<BullmqEventBus>('bullmq.event.bus');
+}
+
+export namespace CasbinQueueBindings {
+  export const CASBIN_QUEUE = BindingKey.create<Queue>('casbin.queue');
 }

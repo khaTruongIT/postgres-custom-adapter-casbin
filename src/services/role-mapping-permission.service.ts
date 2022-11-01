@@ -3,27 +3,24 @@ import {repository} from '@loopback/repository';
 import {BullmqEventBusBindings} from '../constants';
 import {CasbinModelEvent} from '../event-bus';
 import BullmqEventBus from '../event-bus/bullmq-event-bus';
-import {RoleMappingPermissionRepository} from '../repositories';
+import {RoleMappingPermission} from '../models';
+import {RoleMappingPermissionRepository, RoleRepository} from '../repositories';
 import {getLogger} from '../utils';
-
-export interface PolicyData {
-  name: string;
-  key: number;
-  value: string;
-}
 
 const logger = getLogger('role-mapping-permission.service');
 export class RoleMappingPermissionService {
   constructor(
     @repository(RoleMappingPermissionRepository)
     public roleMappingPermissionRepository: RoleMappingPermissionRepository,
+    @repository(RoleRepository) public roleRepository: RoleRepository,
     @inject(BullmqEventBusBindings.BULLMQ_EVENT_BUS)
     public eventBus: BullmqEventBus,
   ) {}
 
-  async update() {
-    logger.info(`[update], start function update role mapping permission`);
-  }
+  async updateRoleMappingPermissionById(
+    id: number,
+    req: RoleMappingPermission,
+  ) {}
 
   async create() {
     logger.info(`[create], start function create role mapping permission`);

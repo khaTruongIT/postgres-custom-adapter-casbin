@@ -81,7 +81,6 @@ export class RolemappingpermissionController {
   async find(
     @param.filter(RoleMappingPermission) filter?: Filter<RoleMappingPermission>,
   ): Promise<RoleMappingPermission[]> {
-    await this.roleMappingPermissionService.loadPermissionsData();
     return this.roleMappingPermissionRepository.find(filter);
   }
 
