@@ -1,21 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {Queue} from 'bullmq';
+import {CasbinQueueBindings} from '../constants';
 import {RoleMappingPermissionRepository} from '../repositories';
 import {getLogger} from '../utils';
-// import { REDIS_HOST, REDIS_PORT } from "../constants";
-import {createQueue} from '../utils/redis';
 import {ICasbinEventBus} from './casbin-event-bus';
 import {CasbinModelEvent} from './casbin-model-event';
 
 const logger = getLogger('bullmq-event-bus');
 
 export default class BullmqEventBus implements ICasbinEventBus {
-  private queue: Queue = createQueue('casbin-event-bus');
-
   constructor(
     @repository(RoleMappingPermissionRepository)
     public roleMappingPermissionRepository: RoleMappingPermissionRepository,
+    @inject(CasbinQueueBindings.CASBIN_QUEUE) public queue: Queue,
   ) {}
 
   async enqueue(event: CasbinModelEvent<any, any>) {

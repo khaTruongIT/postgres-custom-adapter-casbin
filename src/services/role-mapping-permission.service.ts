@@ -1,4 +1,4 @@
-import {inject} from '@loopback/core';
+import {inject, service} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {BullmqEventBusBindings} from '../constants';
 import {CasbinModelEvent} from '../event-bus';
@@ -6,6 +6,7 @@ import BullmqEventBus from '../event-bus/bullmq-event-bus';
 import {RoleMappingPermission} from '../models';
 import {RoleMappingPermissionRepository, RoleRepository} from '../repositories';
 import {getLogger} from '../utils';
+import {RedisService} from './redis.service';
 
 const logger = getLogger('role-mapping-permission.service');
 export class RoleMappingPermissionService {
@@ -15,6 +16,7 @@ export class RoleMappingPermissionService {
     @repository(RoleRepository) public roleRepository: RoleRepository,
     @inject(BullmqEventBusBindings.BULLMQ_EVENT_BUS)
     public eventBus: BullmqEventBus,
+    @service(RedisService) public redisService: RedisService,
   ) {}
 
   async updateRoleMappingPermissionById(
@@ -51,5 +53,18 @@ export class RoleMappingPermissionService {
     }
 
     logger.info(`[loadPermissions], end function load permission`);
+  }
+
+  // get key and value cached in redis
+  async getKey(id: string) {
+    logger.info(`[GETKEY], start function get key:${id}`);
+    try {
+      const data = await this.redisService.get(id);
+      logger.info(`data: ${JSON.stringify(data)}`);
+      return data;
+    } catch (err) {
+      logger.error(`Error get value of key:${id}, err: ${JSON.stringify(err)}`);
+      throw err;
+    }
   }
 }

@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {Job, Worker} from 'bullmq';
 import {AuthorizeAppApplication} from '../application';
+import {REDIS_HOST, REDIS_PORT} from '../constants';
 import {RedisService} from '../services';
 import {getLogger} from '../utils';
 import {createConnection} from '../utils/redis';
 
 const logger = getLogger('casbin.worker');
 
-const connection = createConnection();
+const connection = createConnection(REDIS_HOST, REDIS_PORT);
 
 export class CasbinWorker {
   private worker: Worker;
@@ -65,11 +66,11 @@ export class CasbinWorker {
     switch (type) {
       case 'created':
         console.log(`created ${name} in meilisearch`);
-        await this.service.create(name, JSON.stringify(entity));
+        await this.service.set(name, JSON.stringify(entity));
         break;
       case 'updated':
         console.log(`updated ${name} in meilisearch`);
-        await this.service.update(name, JSON.stringify(entity));
+        await this.service.set(name, JSON.stringify(entity));
         break;
       case 'deleted':
         console.warn(`deleted ${name} in meilisearch`);

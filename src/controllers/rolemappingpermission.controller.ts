@@ -1,4 +1,4 @@
-import {inject} from '@loopback/core';
+import {inject, service} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -20,14 +20,17 @@ import {
 } from '@loopback/rest';
 import {RoleMappingPermission} from '../models';
 import {RoleMappingPermissionRepository} from '../repositories';
-import {RoleMappingPermissionService} from '../services';
+import {RedisService, RoleMappingPermissionService} from '../services';
+import {getLogger} from '../utils';
 
+const logger = getLogger('role-mapping-permission-controller');
 export class RolemappingpermissionController {
   constructor(
     @repository(RoleMappingPermissionRepository)
     public roleMappingPermissionRepository: RoleMappingPermissionRepository,
     @inject('services.RoleMappingPermissionService')
     public roleMappingPermissionService: RoleMappingPermissionService,
+    @service(RedisService) public redisService: RedisService,
   ) {}
 
   @post('/role-mapping-permissions')
@@ -122,6 +125,10 @@ export class RolemappingpermissionController {
     @param.filter(RoleMappingPermission, {exclude: 'where'})
     filter?: FilterExcludingWhere<RoleMappingPermission>,
   ): Promise<RoleMappingPermission> {
+    const data = await this.roleMappingPermissionService.getKey(
+      'bull:casbin-event-bus:1',
+    );
+    logger.info(`data of ${id}, ${JSON.stringify(data)}`);
     return this.roleMappingPermissionRepository.findById(id, filter);
   }
 

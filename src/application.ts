@@ -15,16 +15,22 @@ import {CasbinAuthorizationComponent} from './components';
 import {PostgresCasbinAdapter} from './components/casbin';
 import {
   BullmqEventBusBindings,
+  CasbinQueueBindings,
   PasswordHasherBindings,
   PostgresAdapterBindings,
+  REDIS_HOST,
+  REDIS_PORT,
   TokenServiceBindings,
 } from './constants';
 import {DbDataSource, RedisDatasource} from './datasources';
 import BullmqEventBus from './event-bus/bullmq-event-bus';
 import {MySequence} from './sequence';
 import {BcryptHasher, JWTService, RedisService} from './services';
-import {configure} from './utils';
+import {configure, createConnection, createQueue} from './utils';
 export {ApplicationConfig};
+
+const casbinQueue = createQueue('casbin-event-bus');
+const casbinRedis = createConnection(REDIS_HOST, REDIS_PORT);
 
 export class AuthorizeAppApplication extends BootMixin(
   ServiceMixin(RepositoryMixin(RestApplication)),
@@ -62,6 +68,14 @@ export class AuthorizeAppApplication extends BootMixin(
     this.bind(BullmqEventBusBindings.BULLMQ_EVENT_BUS)
       .toClass(BullmqEventBus)
       .inScope(BindingScope.SINGLETON);
+    this.bind(CasbinQueueBindings.CASBIN_QUEUE)
+      .to(casbinQueue)
+      .inScope(BindingScope.SINGLETON);
+
+    this.bind(CasbinQueueBindings.CASBIN_REDIS)
+      .to(casbinRedis)
+      .inScope(BindingScope.SINGLETON);
+
     //bind custom service
     this.service(RedisService);
 

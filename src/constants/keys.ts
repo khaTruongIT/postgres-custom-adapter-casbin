@@ -1,6 +1,7 @@
 import {TokenService} from '@loopback/authentication';
 import {BindingKey} from '@loopback/core';
 import {Queue} from 'bullmq';
+import IORedis from 'ioredis';
 import {PostgresCasbinAdapter} from '../components/casbin';
 import BullmqEventBus from '../event-bus/bullmq-event-bus';
 import {PasswordHasher} from '../services';
@@ -58,4 +59,8 @@ export namespace BullmqEventBusBindings {
 
 export namespace CasbinQueueBindings {
   export const CASBIN_QUEUE = BindingKey.create<Queue>('casbin.queue');
+  export const CASBIN_REDIS = BindingKey.create<IORedis>('casbin.redis');
 }
+
+export const REDIS_HOST = 'localhost';
+export const REDIS_PORT = 6379;

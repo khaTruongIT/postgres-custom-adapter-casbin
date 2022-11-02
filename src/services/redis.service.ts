@@ -1,11 +1,15 @@
+import {inject} from '@loopback/core';
 import IORedis from 'ioredis';
+import {CasbinQueueBindings} from '../constants';
 import {getLogger} from '../utils';
 
 const logger = getLogger('redis.service');
 
 export class RedisService {
-  private redis: IORedis;
-  constructor() {}
+  constructor(
+    @inject(CasbinQueueBindings.CASBIN_REDIS) public redis: IORedis,
+  
+  ) {}
 
   // set key and value ---> update
   async set(key: string, value: string | number | Buffer): Promise<boolean> {
@@ -15,14 +19,32 @@ export class RedisService {
     return result === 'OK';
   }
 
+  async getKeys(patternOfKey: string): Promise<string[]> {
+    try {
+      logger.info(
+        `[GETKEY], start function get key, patterOfKey: ${patternOfKey}`,
+      );
+      const keys = await this.redis.keys(patternOfKey);
+      logger.info(`Keys: ${JSON.stringify(keys)}`);
+      return keys;
+    } catch (err) {
+      logger.error(
+        `[GETKEY], error getKey, pattern: ${patternOfKey}, error: ${JSON.stringify(
+          err,
+        )}`,
+      );
+      throw err;
+    }
+  }
+
   // async get key and value -->
-  async get<TypeOfValue>(key: string): Promise<TypeOfValue | null> {
+  async get(key: string): Promise<string | null> {
     try {
       logger.info(`Start function get key: ${key}`);
-      const value = await this.redis.get(key);
+      const value = await this.redis.hgetall(key);
       logger.info(`Value of ${key}: ${JSON.stringify(value)}`);
       if (value) {
-        const data = JSON.parse(value) as TypeOfValue;
+        const data = value.data;
         return data;
       } else {
         return null;
@@ -38,5 +60,13 @@ export class RedisService {
   async delete(key: string) {
     logger.info(`[delete], delete key: ${key}`);
     return this.redis.del(key);
+  }
+
+  // get data from db and set default key and value
+  async setData() {
+    const data = await this.
+    await this.redis.hmset(
+
+    );
   }
 }
