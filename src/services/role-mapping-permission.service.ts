@@ -1,7 +1,7 @@
 import {inject, service} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {BullmqEventBusBindings} from '../constants';
-import {CasbinModelEvent} from '../event-bus';
+// import {CasbinModelEvent} from '../event-bus';
 import BullmqEventBus from '../event-bus/bullmq-event-bus';
 import {RoleMappingPermission} from '../models';
 import {RoleMappingPermissionRepository, RoleRepository} from '../repositories';
@@ -32,27 +32,49 @@ export class RoleMappingPermissionService {
     logger.info(`[delete], start function delete role mapping permission`);
   }
 
-  async loadPermissionsData(): Promise<void> {
-    logger.info(`[loadPermissions], start function load permission`);
-    const permissionsOfRoles = await this.roleMappingPermissionRepository.find({
-      fields: ['id', 'subject', 'object', 'action'],
-    });
-    logger.info(`permissionsOfRole: ${JSON.stringify(permissionsOfRoles)}`);
+  // async loadPermissionsData(): Promise<void> {
+  //   logger.info(`[loadPermissions], start function load permission`);
+  //   const permissionsOfRoles = await this.roleMappingPermissionRepository.find({
+  //     fields: ['id', 'subject', 'object', 'action'],
+  //   });
+  //   logger.info(`permissionsOfRole: ${JSON.stringify(permissionsOfRoles)}`);
 
-    for (const permission of permissionsOfRoles) {
-      const lineOfRule = `${permission.subject}, ${permission.object}, ${permission.action}`;
-      const string = 'p'.concat(',').concat(lineOfRule);
-      const object = {
-        id: permission.id.toString(),
-        name: permission.subject,
-        type: 'created',
-        entity: string,
-      } as CasbinModelEvent;
-      logger.info(`object: ${JSON.stringify(object)}`);
-      await this.eventBus.enqueue(object);
+  //   for (const permission of permissionsOfRoles) {
+  //     const lineOfRule = `${permission.subject}, ${permission.object}, ${permission.action}`;
+  //     const string = 'p'.concat(',').concat(lineOfRule);
+  //     const object = {
+  //       id: permission.id.toString(),
+  //       name: permission.subject,
+  //       type: 'created',
+  //       entity: string,
+  //     } as CasbinModelEvent;
+  //     logger.info(`object: ${JSON.stringify(object)}`);
+  //     await this.eventBus.enqueue(object);
+  //   }
+
+  //   logger.info(`[loadPermissions], end function load permission`);
+  // }
+
+  async getPermissionByRoleName(roleName: string) {
+    try {
+      logger.info(
+        `[getPermissionByRoleName], start function get permission by role name: ${roleName}`,
+      );
+      const permissionsOfRoleName =
+        await this.roleMappingPermissionRepository.find({
+          where: {
+            subject: roleName,
+          },
+          fields: ['id', 'subject', 'object', 'action'],
+        });
+      logger.info(
+        `permissionsOfRoleName: ${JSON.stringify(permissionsOfRoleName)}`,
+      );
+      return permissionsOfRoleName;
+    } catch (err) {
+      logger.error(`Error get permission by role name: ${JSON.stringify(err)}`);
+      throw err;
     }
-
-    logger.info(`[loadPermissions], end function load permission`);
   }
 
   // get key and value cached in redis
@@ -66,5 +88,9 @@ export class RoleMappingPermissionService {
       logger.error(`Error get value of key:${id}, err: ${JSON.stringify(err)}`);
       throw err;
     }
+  }
+
+  async setDataFromDb() {
+    logger.info(`[setDataFromDb]`);
   }
 }

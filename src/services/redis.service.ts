@@ -2,13 +2,13 @@ import {inject} from '@loopback/core';
 import IORedis from 'ioredis';
 import {CasbinQueueBindings} from '../constants';
 import {getLogger} from '../utils';
+// import {RoleMappingPermissionService} from './role-mapping-permission.service';
 
 const logger = getLogger('redis.service');
 
 export class RedisService {
   constructor(
-    @inject(CasbinQueueBindings.CASBIN_REDIS) public redis: IORedis,
-  
+    @inject(CasbinQueueBindings.CASBIN_REDIS) public redis: IORedis, // @inject('services.RoleMappingPermissionService') // public roleMappingPermissionService: RoleMappingPermissionService,
   ) {}
 
   // set key and value ---> update
@@ -39,34 +39,16 @@ export class RedisService {
 
   // async get key and value -->
   async get(key: string): Promise<string | null> {
-    try {
-      logger.info(`Start function get key: ${key}`);
-      const value = await this.redis.hgetall(key);
-      logger.info(`Value of ${key}: ${JSON.stringify(value)}`);
-      if (value) {
-        const data = value.data;
-        return data;
-      } else {
-        return null;
-      }
-    } catch (err) {
-      logger.error(
-        `Error get value of key:${key}, error: ${JSON.stringify(err)}`,
-      );
-      throw err;
+    const data = await this.redis.get(key);
+    if (data) {
+      return data;
+    } else {
+      return null;
     }
   }
   // delete key and value
   async delete(key: string) {
     logger.info(`[delete], delete key: ${key}`);
     return this.redis.del(key);
-  }
-
-  // get data from db and set default key and value
-  async setData() {
-    const data = await this.
-    await this.redis.hmset(
-
-    );
   }
 }

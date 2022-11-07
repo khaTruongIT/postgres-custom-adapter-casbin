@@ -6,9 +6,16 @@ import {
   Authorizer,
 } from '@loopback/authorization';
 import {inject, Provider} from '@loopback/core';
+import {repository} from '@loopback/repository';
 import * as casbin from 'casbin';
+import IORedis from 'ioredis';
 import path from 'path';
-import {PostgresAdapterBindings, RESOURCE_ID} from '../../constants/keys';
+import {
+  CasbinQueueBindings,
+  PostgresAdapterBindings,
+  RESOURCE_ID,
+} from '../../constants/keys';
+import {RoleMappingPermissionRepository} from '../../repositories';
 import {getLogger} from '../../utils';
 import {PostgresCasbinAdapter} from './postgres-casbin-adapter';
 
@@ -20,6 +27,9 @@ export class CasbinAuthorizationProvider implements Provider<Authorizer> {
   constructor(
     @inject(PostgresAdapterBindings.POSTGRES_ADAPTER)
     public postgresCasbinAdapter: PostgresCasbinAdapter,
+    @inject(CasbinQueueBindings.CASBIN_REDIS) public redis: IORedis,
+    @repository(RoleMappingPermissionRepository)
+    public roleMappingRepository: RoleMappingPermissionRepository,
   ) {}
 
   value(): Authorizer {
@@ -50,7 +60,6 @@ export class CasbinAuthorizationProvider implements Provider<Authorizer> {
       object,
       action: metadata.scopes?.[0] ?? DEFAULT_SCOPE,
     };
-    logger.info('request ==>', request);
 
     const allowedRoles = metadata.allowedRoles;
 
@@ -63,25 +72,6 @@ export class CasbinAuthorizationProvider implements Provider<Authorizer> {
       conf,
       this.postgresCasbinAdapter,
     );
-
-    const testFilter = await postgresEnforcer.getFilteredPolicy(
-      0,
-      request.subject,
-      request.object,
-      request.action,
-    );
-
-    logger.info(`Test filter ==>`, testFilter);
-
-    const hasPolicy = await postgresEnforcer.hasPolicy(
-      request.subject,
-      request.object,
-      request.action,
-    );
-
-    logger.info(`Has policy ==>`, hasPolicy);
-
-    if (!testFilter) return AuthorizationDecision.DENY;
 
     const allowedByRole = await postgresEnforcer.enforce(
       request.subject,

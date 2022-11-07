@@ -1,5 +1,5 @@
 import {ApplicationConfig, AuthorizeAppApplication} from './application';
-import {RoleMappingPermissionService} from './services';
+// import {RoleMappingPermissionService} from './services';
 
 export * from './application';
 
@@ -8,11 +8,11 @@ export async function main(options: ApplicationConfig = {}) {
   await app.boot();
   await app.start();
 
-  const roleMappingPermissionService =
-    await app.get<RoleMappingPermissionService>(
-      'services.RoleMappingPermissionService',
-    );
-  await roleMappingPermissionService.loadPermissionsData();
+  // const roleMappingPermissionService =
+  //   await app.get<RoleMappingPermissionService>(
+  //     'services.RoleMappingPermissionService',
+  //   );
+  // await roleMappingPermissionService.loadPermissionsData();
 
   const url = app.restServer.url;
   console.log(`Server is running at ${url}`);
